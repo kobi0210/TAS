@@ -1,0 +1,299 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<style>
+  @font-face { font-family: 'BigShoulders'; src: url('fonts/BigShoulders-Bold.ttf'); font-weight: 700; }
+  @font-face { font-family: 'Geist'; src: url('fonts/GeistMono-Regular.ttf'); font-weight: 400; }
+  @font-face { font-family: 'Geist'; src: url('fonts/GeistMono-Bold.ttf'); font-weight: 700; }
+
+  :root {
+    --ground: #17150F;
+    --line:   #2C2820;
+    --line-2: #423B2C;
+    --ash:    #6E6857;
+    --chalk:  #B9B2A0;
+    --paper:  #EDE8D8;
+    --sand:   #C3B98D;
+    --rose:   #9A6F89;
+    --pine:   #587A76;
+    --dusk:   #6C6687;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    width: 1840px; height: 1200px;
+    background: var(--ground);
+    font-family: 'Geist', monospace;
+    color: var(--paper);
+    position: relative; overflow: hidden;
+  }
+  .grain { position: absolute; inset: 0; opacity: 0.03; pointer-events: none;
+    background-image:
+      repeating-linear-gradient(0deg, #fff 0 1px, transparent 1px 3px),
+      repeating-linear-gradient(90deg, #fff 0 1px, transparent 1px 3px); }
+
+  .stage { position: absolute; inset: 56px; border: 1px solid var(--line); }
+
+  /* 머리글 */
+  .head { height: 132px; border-bottom: 1px solid var(--line);
+    display: flex; align-items: flex-end; justify-content: space-between; padding: 0 34px 20px; }
+  .title { font-family: 'BigShoulders'; font-weight: 700; font-size: 96px;
+    line-height: 0.78; letter-spacing: -0.005em; }
+  .title em { font-style: normal; color: var(--sand); }
+  .meta { text-align: right; font-size: 10px; letter-spacing: 0.24em; color: var(--ash); line-height: 2.2; }
+
+  /* 색 띠 */
+  .band { height: 92px; border-bottom: 1px solid var(--line);
+    display: grid; grid-template-columns: repeat(4, 1fr); }
+  .sw { border-right: 1px solid var(--line); padding: 15px 26px;
+    display: flex; align-items: center; gap: 18px; }
+  .sw:last-child { border-right: 0; }
+  .sw .chip { width: 74px; height: 40px; flex: none; }
+  .sw .hex { font-size: 12px; letter-spacing: 0.16em; color: var(--chalk); }
+  .sw .rol { font-size: 9px; letter-spacing: 0.22em; color: var(--ash); margin-top: 5px; }
+
+  /* 본문 */
+  .body { height: 700px; display: grid;
+    grid-template-columns: 1.02fr 1px 1.18fr 1px 0.92fr; }
+  .vr { background: var(--line); }
+  .col { padding: 24px 28px; display: flex; flex-direction: column; min-height: 0; }
+  .lbl { font-size: 9px; letter-spacing: 0.26em; color: var(--ash); margin-bottom: 16px; flex: none; }
+  .lbl b { color: var(--sand); font-weight: 400; }
+
+  /* 팀 보드 */
+  .teams { display: flex; flex-direction: column; gap: 9px; flex: 1; }
+  .team { border: 1px solid var(--line-2); flex: 1; display: flex; flex-direction: column; }
+  .team .bar { display: flex; align-items: center; justify-content: space-between;
+    border-bottom: 1px solid var(--line-2); padding: 6px 11px; flex: none; }
+  .team .nm { font-size: 11px; letter-spacing: 0.14em; color: var(--chalk); }
+  .team .pt { font-size: 11px; font-weight: 700; padding: 2px 8px; color: var(--ground); }
+  .team .slots { display: flex; gap: 6px; padding: 9px 11px; align-items: center; flex: 1; }
+  .slot { width: 40px; height: 40px; border: 1px solid var(--line-2); position: relative; flex: none; }
+  .slot.on { border-color: currentColor; }
+  .slot.on::after { content: ''; position: absolute; inset: 6px; background: currentColor; opacity: .82; }
+  .slot .tag { position: absolute; top: -6px; left: -4px; font-size: 7.5px; font-weight: 700;
+    padding: 1px 3px; background: var(--sand); color: var(--ground); line-height: 1.3; }
+  .glyph { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; }
+
+  /* 중앙 */
+  .center { display: flex; flex-direction: column; }
+  .ticks { display: flex; gap: 4px; justify-content: center; }
+  .ticks i { display: block; width: 1px; height: 8px; background: var(--line-2); }
+  .ticks i.tall { height: 16px; background: var(--ash); }
+  .clockwrap { flex: 1; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 18px; }
+  .num { font-size: 186px; font-weight: 700; letter-spacing: -0.05em;
+    line-height: 0.8; font-variant-numeric: tabular-nums; }
+  .capt { font-size: 9.5px; letter-spacing: 0.34em; color: var(--ash); }
+  .ladder { flex: none; border-top: 1px solid var(--line-2); padding-top: 4px; }
+  .rung { display: flex; align-items: center; gap: 14px; padding: 7px 0;
+    border-bottom: 1px solid var(--line); font-size: 11.5px; }
+  .rung:last-child { border-bottom: 0; }
+  .rung .i { font-size: 9px; color: var(--ash); width: 20px; letter-spacing: .1em; }
+  .rung .bar2 { height: 4px; }
+  .rung .v { margin-left: auto; color: var(--chalk); font-variant-numeric: tabular-nums; }
+  .rung.top .v { color: var(--sand); }
+
+  /* 큐 */
+  .queue { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; flex: none; }
+  .cell { aspect-ratio: 1; border: 1px solid var(--line-2); position: relative; }
+  .cell.now { border-color: var(--sand); }
+  .cell.now::after { content: ''; position: absolute; inset: 5px; border: 1px solid var(--sand); }
+  .cell.done::before { content: ''; position: absolute; inset: 0;
+    background: repeating-linear-gradient(45deg, var(--line-2) 0 1px, transparent 1px 6px); }
+  .key { font-size: 9px; letter-spacing: 0.2em; color: var(--ash); line-height: 2.1; margin-top: 16px; }
+  .unclaimed { margin-top: auto; padding-top: 18px; border-top: 1px solid var(--line); }
+
+  /* 꼬리 */
+  .foot { height: 154px; border-top: 1px solid var(--line);
+    display: grid; grid-template-columns: repeat(4, 1fr); }
+  .fcell { border-right: 1px solid var(--line); padding: 22px 26px;
+    display: flex; flex-direction: column; justify-content: center; }
+  .fcell:last-child { border-right: 0; position: relative; }
+  .fk { font-size: 9px; letter-spacing: 0.26em; color: var(--ash); margin-bottom: 10px; }
+  .fv { font-size: 12px; color: var(--chalk); line-height: 1.8; }
+  .sig { position: absolute; right: 26px; bottom: 16px; font-size: 8.5px;
+    letter-spacing: 0.3em; color: var(--line-2); }
+</style>
+</head>
+<body>
+<div class="grain"></div>
+
+<div class="stage">
+
+  <div class="head">
+    <div class="title">QUIET <em>ARENA</em></div>
+    <div class="meta">
+      A VISUAL SYSTEM FOR DECIDING VALUE<br>
+      FOUR PIGMENTS · ONE CLOCK · NO ORNAMENT<br>
+      PLATE 01 — THE AUCTION FLOOR
+    </div>
+  </div>
+
+  <div class="band">
+    <div class="sw"><div class="chip" style="background:#C3B98D"></div>
+      <div><div class="hex">C3B98D</div><div class="rol">SAND — THE DECIDING VALUE</div></div></div>
+    <div class="sw"><div class="chip" style="background:#9A6F89"></div>
+      <div><div class="hex">9A6F89</div><div class="rol">ROSE — REFUSAL, WITHDRAWAL</div></div></div>
+    <div class="sw"><div class="chip" style="background:#587A76"></div>
+      <div><div class="hex">587A76</div><div class="rol">PINE — LIVE, ASSENTING</div></div></div>
+    <div class="sw"><div class="chip" style="background:#6C6687"></div>
+      <div><div class="hex">6C6687</div><div class="rol">DUSK — RANK, PROVENANCE</div></div></div>
+  </div>
+
+  <div class="body">
+
+    <!-- I. 팀 보드 -->
+    <div class="col">
+      <div class="lbl">I · <b>THE BOARD</b> — REPEATED SLOTS, ONE ANOMALY</div>
+      <div class="teams">
+
+        <div class="team" style="color:#C3B98D">
+          <div class="bar"><span class="nm">01</span><span class="pt" style="background:#C3B98D">680</span></div>
+          <div class="slots">
+            <div class="slot on"><span class="tag">405</span></div>
+            <div class="slot on"><span class="tag">15</span></div>
+            <div class="slot"><div class="glyph"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M3 13V3h10" stroke="#423B2C" stroke-width="1.5" fill="none"/></svg></div></div>
+            <div class="slot"><div class="glyph"><svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5" stroke="#423B2C" stroke-width="1.5" fill="none"/></svg></div></div>
+            <div class="slot"><div class="glyph"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M3 3l10 10M13 3L3 13" stroke="#423B2C" stroke-width="1.5"/></svg></div></div>
+          </div>
+        </div>
+
+        <div class="team" style="color:#9A6F89">
+          <div class="bar"><span class="nm">02</span><span class="pt" style="background:#9A6F89">360</span></div>
+          <div class="slots">
+            <div class="slot on"><span class="tag">450</span></div>
+            <div class="slot"><div class="glyph"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M8 3v10M3 8h10" stroke="#423B2C" stroke-width="1.5"/></svg></div></div>
+            <div class="slot"><div class="glyph"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M3 13V3h10" stroke="#423B2C" stroke-width="1.5" fill="none"/></svg></div></div>
+            <div class="slot"><div class="glyph"><svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5" stroke="#423B2C" stroke-width="1.5" fill="none"/></svg></div></div>
+            <div class="slot"><div class="glyph"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M3 3l10 10M13 3L3 13" stroke="#423B2C" stroke-width="1.5"/></svg></div></div>
+          </div>
+        </div>
+
+        <div class="team" style="color:#587A76">
+          <div class="bar"><span class="nm">03</span><span class="pt" style="background:#587A76;color:#EDE8D8">170</span></div>
+          <div class="slots">
+            <div class="slot"><div class="glyph"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M8 3v10M3 8h10" stroke="#423B2C" stroke-width="1.5"/></svg></div></div>
+            <div class="slot"><div class="glyph"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M3 13V3h10" stroke="#423B2C" stroke-width="1.5" fill="none"/></svg></div></div>
+            <div class="slot"><div class="glyph"><svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5" stroke="#423B2C" stroke-width="1.5" fill="none"/></svg></div></div>
+            <div class="slot"><div class="glyph"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M3 3l10 10M13 3L3 13" stroke="#423B2C" stroke-width="1.5"/></svg></div></div>
+            <div class="slot"><div class="glyph"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M3 5h10v6H3z" stroke="#423B2C" stroke-width="1.5" fill="none"/></svg></div></div>
+          </div>
+        </div>
+
+        <div class="team" style="color:#6C6687">
+          <div class="bar"><span class="nm">04</span><span class="pt" style="background:#6C6687;color:#EDE8D8">610</span></div>
+          <div class="slots">
+            <div class="slot on"><span class="tag">200</span></div>
+            <div class="slot"><div class="glyph"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M8 3v10M3 8h10" stroke="#423B2C" stroke-width="1.5"/></svg></div></div>
+            <div class="slot"><div class="glyph"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M3 13V3h10" stroke="#423B2C" stroke-width="1.5" fill="none"/></svg></div></div>
+            <div class="slot"><div class="glyph"><svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5" stroke="#423B2C" stroke-width="1.5" fill="none"/></svg></div></div>
+            <div class="slot"><div class="glyph"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M3 3l10 10M13 3L3 13" stroke="#423B2C" stroke-width="1.5"/></svg></div></div>
+          </div>
+        </div>
+
+        <div class="team" style="color:#C3B98D">
+          <div class="bar"><span class="nm">05</span><span class="pt" style="background:#C3B98D">550</span></div>
+          <div class="slots">
+            <div class="slot on"><span class="tag">150</span></div>
+            <div class="slot"><div class="glyph"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M8 3v10M3 8h10" stroke="#423B2C" stroke-width="1.5"/></svg></div></div>
+            <div class="slot"><div class="glyph"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M3 13V3h10" stroke="#423B2C" stroke-width="1.5" fill="none"/></svg></div></div>
+            <div class="slot"><div class="glyph"><svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5" stroke="#423B2C" stroke-width="1.5" fill="none"/></svg></div></div>
+            <div class="slot"><div class="glyph"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M3 3l10 10M13 3L3 13" stroke="#423B2C" stroke-width="1.5"/></svg></div></div>
+          </div>
+        </div>
+
+        <div class="team" style="color:#9A6F89">
+          <div class="bar"><span class="nm">06</span><span class="pt" style="background:#9A6F89">770</span></div>
+          <div class="slots">
+            <div class="slot on"><span class="tag">150</span></div>
+            <div class="slot on"><span class="tag">90</span></div>
+            <div class="slot"><div class="glyph"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M3 13V3h10" stroke="#423B2C" stroke-width="1.5" fill="none"/></svg></div></div>
+            <div class="slot"><div class="glyph"><svg width="14" height="14" viewBox="0 0 16 16"><circle cx="8" cy="8" r="5" stroke="#423B2C" stroke-width="1.5" fill="none"/></svg></div></div>
+            <div class="slot"><div class="glyph"><svg width="14" height="14" viewBox="0 0 16 16"><path d="M3 3l10 10M13 3L3 13" stroke="#423B2C" stroke-width="1.5"/></svg></div></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="vr"></div>
+
+    <!-- II. 시계 -->
+    <div class="col center">
+      <div class="lbl" style="text-align:center">II · <b>THE CLOCK</b> — ONE VALUE HOLDS THE ROOM</div>
+
+      <div class="clockwrap">
+        <div class="ticks">
+          <i class="tall"></i><i></i><i></i><i></i><i></i><i class="tall"></i><i></i><i></i><i></i><i></i>
+          <i class="tall"></i><i></i><i></i><i></i><i></i><i class="tall"></i><i></i><i></i><i></i><i></i>
+          <i class="tall"></i><i></i><i></i><i></i><i></i><i class="tall"></i><i></i><i></i><i></i><i></i>
+          <i class="tall"></i><i></i><i></i><i></i><i></i><i class="tall"></i>
+        </div>
+        <div class="num">01.04</div>
+        <div class="capt">SECONDS REMAINING</div>
+      </div>
+
+      <div class="ladder">
+        <div class="rung"><span class="i">06</span><span class="bar2" style="width:78px;background:#423B2C"></span><span class="v" style="color:var(--ash)">200</span></div>
+        <div class="rung"><span class="i">05</span><span class="bar2" style="width:100px;background:#6C6687"></span><span class="v">250</span></div>
+        <div class="rung"><span class="i">04</span><span class="bar2" style="width:122px;background:#C3B98D"></span><span class="v">300</span></div>
+        <div class="rung"><span class="i">03</span><span class="bar2" style="width:144px;background:#9A6F89"></span><span class="v">350</span></div>
+        <div class="rung"><span class="i">02</span><span class="bar2" style="width:166px;background:#6C6687"></span><span class="v">400</span></div>
+        <div class="rung top"><span class="i">01</span><span class="bar2" style="width:188px;background:#587A76"></span><span class="v">450</span></div>
+      </div>
+      <div class="capt" style="text-align:center; padding-top:14px">THE ASCENT · SIX OFFERS · ONE STANDS</div>
+    </div>
+
+    <div class="vr"></div>
+
+    <!-- III. 큐 -->
+    <div class="col">
+      <div class="lbl">III · <b>THE QUEUE</b> — PATIENT ACCUMULATION</div>
+      <div class="queue">
+        <div class="cell done"></div><div class="cell done"></div><div class="cell done"></div>
+        <div class="cell done"></div><div class="cell done"></div><div class="cell done"></div>
+        <div class="cell now"></div>
+        <div class="cell"></div><div class="cell"></div><div class="cell"></div>
+        <div class="cell"></div><div class="cell"></div><div class="cell"></div>
+        <div class="cell"></div><div class="cell"></div><div class="cell"></div>
+        <div class="cell"></div><div class="cell"></div><div class="cell"></div>
+        <div class="cell"></div><div class="cell"></div><div class="cell"></div>
+        <div class="cell"></div><div class="cell"></div><div class="cell"></div>
+      </div>
+      <div class="key">▨ SETTLED &nbsp; ◻ ON THE FLOOR &nbsp; ▢ WAITING</div>
+
+      <div class="unclaimed">
+        <div class="lbl" style="margin-bottom:12px">IV · <b>THE UNCLAIMED</b> — RETURNED</div>
+        <div style="display:flex; gap:8px">
+          <div class="cell" style="width:46px; opacity:.4"></div>
+          <div class="cell" style="width:46px; opacity:.4"></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="foot">
+    <div class="fcell">
+      <div class="fk">GROUND</div>
+      <div class="fv">#17150F warm ash<br>never terminal blue-black</div>
+    </div>
+    <div class="fcell">
+      <div class="fk">RATIO</div>
+      <div class="fv">90 neutral : 10 pigment<br>colour identifies, never decorates</div>
+    </div>
+    <div class="fcell">
+      <div class="fk">SCALE</div>
+      <div class="fv">186px numeral · 9px label<br>nothing between the poles</div>
+    </div>
+    <div class="fcell">
+      <div class="fk">RULE</div>
+      <div class="fv">every boundary nameable<br>every repetition true</div>
+      <div class="sig">QUIET ARENA — PLATE 01</div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
