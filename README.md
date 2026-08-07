@@ -45,4 +45,4 @@ npm run dev
 
 ### 4. 배포
 
-Vercel 이용
+Vercel 이용하여 배포 가능하다~
